@@ -79,12 +79,36 @@
     //
     // test if a specific row on this board contains a conflict
     hasRowConflictAt: function(rowIndex) {
-      return false; // fixme
+      return _.reduce(this.rows()[rowIndex], (a, e) => a + e, 0) > 1;
+      /*
+      const row = this.rows()[rowIndex];
+      let sum = 0;
+      for (let i = 0; i < row.length; i++) {
+        sum += row[i];
+      }
+      return sum > 1;
+      */
     },
 
     // test if any rows on this board contain conflicts
     hasAnyRowConflicts: function() {
-      return false; // fixme
+      return _.some(this.rows(), (e, i) => this.hasRowConflictAt(i));  
+      /* 
+      var hasConflict = false;     
+      const rows = this.rows();
+      
+      for (let i = 0; i < rows.length; i++) {
+        hasConflict = hasConflict || this.hasRowConflictAt(i);
+      }
+      return hasConflict;
+
+      for (let i = 0; i < rows.length; i++) {
+        if (this.hasRowConflictAt(i)) {
+          return true;
+        }
+      }
+      return false;
+      */
     },
 
 
@@ -94,12 +118,31 @@
     //
     // test if a specific column on this board contains a conflict
     hasColConflictAt: function(colIndex) {
-      return false; // fixme
+      let col = [];
+      _.every(this.rows(), e => col.push(e[colIndex]));
+      return _.reduce(col, (a, e) => a + e) > 1;
+      /*
+      const rows = this.rows(); 
+      
+      let sum = 0;
+      for (let i = 0; i < rows.length; i++) {
+        sum += rows[i][colIndex];
+      }
+      return sum > 1;
+      */
     },
 
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function() {
-      return false; // fixme
+      const rows = this.rows();
+
+      for (let j = 0; j < rows[0].length; j++) {
+        if (this.hasColConflictAt(j)) {
+          return true;
+        }
+      }      
+
+      return false;
     },
 
 
@@ -109,12 +152,25 @@
     //
     // test if a specific major diagonal on this board contains a conflict
     hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow) {
-      return false; // fixme
+      const rows = this.rows();
+      let sum = 0; 
+      for (let i = 0; i < rows.length; i++) {
+        sum += rows[i][i + majorDiagonalColumnIndexAtFirstRow]; 
+        alert(majorDiagonalColumnIndexAtFirstRow);
+      }
+      return sum > 1;
     },
 
     // test if any major diagonals on this board contain conflicts
     hasAnyMajorDiagonalConflicts: function() {
-      return false; // fixme
+      const rows = this.rows();
+      let hasConflict = false;
+      for (let i = -rows.length; i < rows.length; i++) {
+        if (this.hasMajorDiagonalConflictAt(i)) {
+          return true;
+        }
+      }
+      return false; 
     },
 
 
