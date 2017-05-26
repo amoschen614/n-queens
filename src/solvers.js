@@ -98,20 +98,56 @@ window.countNRooksSolutions = function(n) {
   return solutionCount;
 };
 
-const generateAllPossibleRows = function(n) {
-  for (var i = 0; i < n; i++) {
-    console.log(i.toString(2));
-  }
-};
+// const generateAllPossibleRows = function(n) {
+//   for (var i = 0; i < n; i++) {
+//     console.log(i.toString(2));
+//   }
+// };
 
-generateAllPossibleRows(8);
+// generateAllPossibleRows(8);
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
 
-  var oneRow = null;
+  var stringifiedSolutions = [];
+
+  const recFindAllSolutions = function(col, matrix, numQueens) {
+    if (numQueens === 0) { //no queens to place, current matrix state is valid queen placement
+      console.log('test: ', JSON.stringify(matrix));
+      stringifiedSolutions.push(JSON.stringify(matrix));
+      return; 
+    }
+    for (let i = 0; i < matrix.length; i++) { //try to place queen in each row of this column
+      if (isQueenSafe(i, col, matrix)) { //check if this (row,col) position is safe to place queen
+        matrix[i][col] = 1; //safe, so place queen here
+        recFindAllSolutions(col + 1, matrix, numQueens - 1); //see if queen placed here leads to a solution
+        matrix[i][col] = 0; //undo queen placement and loop to next row
+      }
+    }
+    return; //all rows in this column tried
+  };
+
+  recFindAllSolutions(0, makeMatrix(), n);
+  console.log('Single solution for ' + n + ' queens:', stringifiedSolutions[Math.floor(Math.random() * stringifiedSolutions.length)]);
+  var solutions = [];
+  for (var i = 0; i < stringifiedSolutions.length; i++) {
+    solutions.push(JSON.parse(stringifiedSolutions[i]));
+  }
+  var randomSolution = solutions[Math.floor(Math.random() * solutions.length)];
+
+  console.log (randomSolution);
+  return randomSolution;
+// const generateAllPossibleRows = function(n) {
+//   for (var i = Math.pow(2, n); i < Math.pow(2, n + 1); i++) {
+//     console.log(i.toString(2).substring(1));
+//   }
+// };
+
+  // var oneRow = null;
   
-  return _.filter(boards, (board) => !this.hasAnyQueenConflicts());
+  // return _.filter(boards, (board) => !this.hasAnyQueenConflicts());
+
+// generateAllPossibleRows(9);
 /*
   var board = new Board({n: n});
   var solution = null;
@@ -159,6 +195,7 @@ window.findNQueensSolution = function(n) {
 };
 
 const logBoard = function(matrix) {
+  console.log('\n');
   for (let i = 0; i < matrix.length; i++) {
     let row = [];
     for (let j = 0; j < matrix[i].length; j++) {
@@ -174,6 +211,7 @@ window.countNQueensSolutions = function(n) {
 
   const recFindAllSolutions = function(col, matrix, numQueens) {
     if (numQueens === 0) { //no queens to place, current matrix state is valid queen placement
+//      logBoard(matrix);
       return solutionCount++; //return value not used
     }
     if (col > matrix.length) { //unplaced queens remaining at end of board, invalid solution
