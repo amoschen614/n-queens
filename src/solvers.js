@@ -16,27 +16,23 @@
 
 
 window.findNRooksSolution = function(n) {
-  let matrix = makeMatrix(n, 0);
   
-  const recFindOneSolution = function(col, matrix, numRooks) {
+  const recFindOneSolution = function(col, matrix, numRooks) { 
     if (numRooks === 0) {
       console.log('Single solution for ' + n + ' rooks:', JSON.stringify(new Board(matrix)));
       return matrix.slice();
     }
-    if (col >= matrix.length) {
-      return null;
-    }
     for (let i = 0; i < matrix.length; i++) {
       matrix[i][col] = 1;
-      var board = new Board(matrix);
-      if (!board.hasAnyRooksConflicts()) {
-        return recFindOneSolution(col + 1, matrix, numRooks - 1);
+      var board = new Board(matrix); //creates a board with current matrix 
+      if (!board.hasAnyRooksConflicts()) { //if there is no conflict..
+        return recFindOneSolution(col + 1, matrix, numRooks - 1); //then recurse
       }
-      matrix[i][col] = 0;
+      matrix[i][col] = 0; //back track
     }
   };
 
-  return recFindOneSolution(0, matrix, n);
+  return recFindOneSolution(0, makeMatrix(n, 0), n);
 
 /*
   var board = new Board({n: n});
@@ -80,21 +76,21 @@ window.countNRooksSolutions = function(n) {
   var solutionCount = 0; 
   
   var recFindAllSolutions = function(col, matrix, numRooks) {
-    if (numRooks === 0) {
-      solutionCount++;
-      return;
+    if (numRooks === 0) { 
+      solutionCount++; //increments solutionCount then..
+      return; //exits inner function(recFindAllSolution), then return solutionCount
     }
-    if (col > matrix.length) {
-      return;
+    if (col > matrix.length) { //seems to be superfluous?
+      return; //exits function 
     }
     for (var i = 0; i < matrix.length; i++) {
-      if (isRookSafe(i, col, matrix)) {       
-        matrix[i][col] = 1;
+      if (isRookSafe(i, col, matrix)) { //if no conflict at given position..      
+        matrix[i][col] = 1; //assign a rook at given position
         recFindAllSolutions(col + 1, matrix, numRooks - 1);
-        matrix[i][col] = 0;
+        matrix[i][col] = 0; //backtrack
       }
     }
-    return;
+    return; //exits inner function(recFindAllSolution), then return solutionCount
   };
 
   recFindAllSolutions(0, makeMatrix(n), n);
@@ -102,12 +98,74 @@ window.countNRooksSolutions = function(n) {
   return solutionCount;
 };
 
+const generateAllPossibleRows = function(n) {
+  for (var i = 0; i < n; i++) {
+    console.log(i.toString(2));
+  }
+};
+
+generateAllPossibleRows(8);
+
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
-  var solution = undefined; //fixme
 
-  console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
-  return solution;
+  var oneRow = null;
+  
+  return _.filter(boards, (board) => !this.hasAnyQueenConflicts());
+/*
+  var board = new Board({n: n});
+  var solution = null;
+  
+  const recFindOneSolution = function (board, numQueens, col) {
+
+    if (numQueens === 0) {
+      solution = board.rows().slice();   
+    } else {
+      for (let i = 0; i < n; i++) {
+        board.togglePiece(i, col);
+        if (!board.hasAnyQueenConflictsOn(i, col)) {
+          recFindOneSolution(board, numQueens - 1, col + 1);
+        }
+        board.togglePiece(i, col);
+        //if (board.get(i)[col]) {}
+      }
+    }      
+  };
+  recFindOneSolution(board, n, 0);
+  return solution; 
+*/
+
+/*
+  const recFindOneSolution = function (col, matrix, numQueens) {
+    if (numQueens === 0) {
+      logBoard(matrix);
+      //console.log('Single solution for ' + n + ' queens:', JSON.stringify(new Board(matrix)));
+      return matrix.slice();
+    }
+    if (col > matrix.length) {
+      return null;
+    } 
+    for (let i = 0; i < matrix.length; i++) {
+      matrix[i][col] = 1;
+      var board = new Board(matrix);
+      if (!board.hasAnyQueenConflictsOn(i, col)) {
+        return recFindOneSolution(col + 1, matrix, numQueens - 1);    
+      }
+      matrix[i][col] = 0;
+    }
+  };
+  return recFindOneSolution(0, makeMatrix(n, 0), n);
+*/
+};
+
+const logBoard = function(matrix) {
+  for (let i = 0; i < matrix.length; i++) {
+    let row = [];
+    for (let j = 0; j < matrix[i].length; j++) {
+      row.push(matrix[i][j]);
+    }
+    console.log(row.join( ',' ));
+  }
 };
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
@@ -151,21 +209,23 @@ var makeMatrix = function(n, v = 0) { //creates n x n matrix, used for initializ
 var isQueenSafe = function(row, col, matrix) { //checks row, column, and min/maj diagonals left of current location
   var numConflicts = 0;
   for (var i = 0; i < matrix.length; i++) {
-    numConflicts += matrix[i][col] + matrix[row][i]; 
+    numConflicts += matrix[i][col] + matrix[row][i]; //add all 1 in one row & col
   }
   for (var i = row, j = col; i >= 0 && j >= 0; i--, j--) {
-    numConflicts += matrix[i][j];
+    numConflicts += matrix[i][j]; //add 1 for each conflict in one diagonal
   }
   for (var i = row, j = col; i < matrix.length && j >= 0; i++, j--) {
-    numConflicts += matrix[i][j];  
+    numConflicts += matrix[i][j]; //add 1 for each conflict in other diagonal 
   }
   return numConflicts === 0;
 };
 
-var isRookSafe = function(row, col, matrix) {
+var isRookSafe = function(row, col, matrix) { //given a position(row, col), it checks occurence of conflicts in row and column
   var numConflicts = 0;
   for (var i = 0; i < matrix.length; i++) {
-    numConflicts += matrix[i][col] + matrix[row][i];
+    numConflicts += matrix[i][col] + matrix[row][i]; //add 1 for ea
   }
   return numConflicts === 0;
 };
+
+findNQueensSolution(4);
